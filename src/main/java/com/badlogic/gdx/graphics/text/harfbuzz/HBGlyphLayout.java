@@ -8,15 +8,15 @@ import com.badlogic.gdx.graphics.text.LayoutTextRunArray.TextRun;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.IntArray;
+import org.lwjgl.util.harfbuzz.HarfBuzz;
 
 import java.text.Bidi;
 import java.text.BreakIterator;
 import java.util.Locale;
 
 import static com.badlogic.gdx.graphics.text.GlyphRun.FLAG_ELLIPSIS;
-import static com.badlogic.gdx.graphics.text.harfbuzz.HarfBuzz.Buffer.HB_GLYPH_FLAG_UNSAFE_TO_BREAK;
-import static com.badlogic.gdx.graphics.text.harfbuzz.HarfBuzz.Font.NO_FEATURES;
-import static com.badlogic.gdx.graphics.text.harfbuzz.HarfBuzz.toFloatFrom26p6;
+import static com.badlogic.gdx.graphics.text.harfbuzz.HarfBuzzUtil.Font.NO_FEATURES;
+import static com.badlogic.gdx.graphics.text.harfbuzz.HarfBuzzUtil.toFloatFrom26p6;
 
 /**
  * Glyph layout for harf-buzz fonts.
@@ -33,7 +33,7 @@ public class HBGlyphLayout extends GlyphLayout<HBFont> {
     private static final Array<HBFont> usedFonts = new Array<>(true, 10, HBFont.class);
 
     /** Cached. */
-    private static final HarfBuzz.Buffer shapeBuffer = HarfBuzz.Buffer.create();
+    private static final HarfBuzzUtil.Buffer shapeBuffer = HarfBuzzUtil.Buffer.create();
 
     private void addLineHeight(float height) {
         lineHeights.add(getHeight() + height);
@@ -107,16 +107,16 @@ public class HBGlyphLayout extends GlyphLayout<HBFont> {
 
     private void addEllipsisRunFor(String chars, final byte level,
                                    final HBFont font, final float color, final int line, int insertIndex) {
-        final HarfBuzz.Buffer shapeBuffer = HBGlyphLayout.shapeBuffer;
+        final HarfBuzzUtil.Buffer shapeBuffer = HBGlyphLayout.shapeBuffer;
         shapeBuffer.reset();
 
         // Set flags and properties
         {
-            shapeBuffer.setContentType(HarfBuzz.Buffer.ContentType.UNICODE);
+            shapeBuffer.setContentType(HarfBuzzUtil.Buffer.ContentType.UNICODE);
 
-            int runFlags = HarfBuzz.Buffer.HB_BUFFER_FLAG_DEFAULT;
-            runFlags |= HarfBuzz.Buffer.HB_BUFFER_FLAG_BOT;
-            runFlags |= HarfBuzz.Buffer.HB_BUFFER_FLAG_EOT;
+            int runFlags = HarfBuzz.HB_BUFFER_FLAG_DEFAULT;
+            runFlags |= HarfBuzz.HB_BUFFER_FLAG_BOT;
+            runFlags |= HarfBuzz.HB_BUFFER_FLAG_EOT;
             shapeBuffer.setFlags(runFlags);
         }
 
@@ -125,7 +125,7 @@ public class HBGlyphLayout extends GlyphLayout<HBFont> {
         shapeBuffer.add(chars, 0, chars.length(), 0, chars.length());
 
         shapeBuffer.guessSegmentProperties();
-        shapeBuffer.setDirection(TextRun.isLevelLtr(level) ? HarfBuzz.Direction.LTR : HarfBuzz.Direction.RTL);
+        shapeBuffer.setDirection(TextRun.isLevelLtr(level) ? HarfBuzzUtil.Direction.LTR : HarfBuzzUtil.Direction.RTL);
 
         // Shape with default features
         final float densityScale = font.densityScale;
@@ -166,7 +166,7 @@ public class HBGlyphLayout extends GlyphLayout<HBFont> {
             final float xOffset = toFloatFrom26p6(glyphPositions[gp + 2]) * densityScale;
             final float yOffset = toFloatFrom26p6(glyphPositions[gp + 3]) * densityScale;
 
-            if ((glyphFlags & HB_GLYPH_FLAG_UNSAFE_TO_BREAK) == 0) {
+            if ((glyphFlags & HarfBuzz.HB_GLYPH_FLAG_UNSAFE_TO_BREAK) == 0) {
                 currentGlyphRun.createCheckpoint(originalIndex, currentGlyphRun.glyphs.size);
             }
             currentGlyphRun.glyphs.add(font.getGlyph(glyphId));
@@ -188,20 +188,20 @@ public class HBGlyphLayout extends GlyphLayout<HBFont> {
     private int addRunsFor(final char[] chars, final int charsLength, final int runStart, final int runEnd, final byte level,
                            final HBFont font, final float color, final int line, int insertIndex,
                            boolean paragraphStart, boolean paragraphEnd) {
-        final HarfBuzz.Buffer shapeBuffer = HBGlyphLayout.shapeBuffer;
+        final HarfBuzzUtil.Buffer shapeBuffer = HBGlyphLayout.shapeBuffer;
         shapeBuffer.reset();
 
         // Set flags and properties
         {
-            shapeBuffer.setContentType(HarfBuzz.Buffer.ContentType.UNICODE);
-            shapeBuffer.setClusterLevel(HarfBuzz.Buffer.ClusterLevel.MONOTONE_CHARACTERS);
+            shapeBuffer.setContentType(HarfBuzzUtil.Buffer.ContentType.UNICODE);
+            shapeBuffer.setClusterLevel(HarfBuzzUtil.Buffer.ClusterLevel.MONOTONE_CHARACTERS);
 
-            int runFlags = HarfBuzz.Buffer.HB_BUFFER_FLAG_DEFAULT;
+            int runFlags = HarfBuzz.HB_BUFFER_FLAG_DEFAULT;
             if (paragraphStart) {
-                runFlags |= HarfBuzz.Buffer.HB_BUFFER_FLAG_BOT;
+                runFlags |= HarfBuzz.HB_BUFFER_FLAG_BOT;
             }
             if (paragraphEnd) {
-                runFlags |= HarfBuzz.Buffer.HB_BUFFER_FLAG_EOT;
+                runFlags |= HarfBuzz.HB_BUFFER_FLAG_EOT;
             }
             shapeBuffer.setFlags(runFlags);
         }
@@ -214,7 +214,7 @@ public class HBGlyphLayout extends GlyphLayout<HBFont> {
 
         shapeBuffer.guessSegmentProperties();
         final boolean ltr = TextRun.isLevelLtr(level);
-        shapeBuffer.setDirection(ltr ? HarfBuzz.Direction.LTR : HarfBuzz.Direction.RTL);
+        shapeBuffer.setDirection(ltr ? HarfBuzzUtil.Direction.LTR : HarfBuzzUtil.Direction.RTL);
 
         // Shape with default features
         final float densityScale = font.densityScale;
@@ -264,7 +264,7 @@ public class HBGlyphLayout extends GlyphLayout<HBFont> {
             final float xOffset = toFloatFrom26p6(glyphPositions[gp + 2]) * densityScale;
             final float yOffset = toFloatFrom26p6(glyphPositions[gp + 3]) * densityScale;
 
-            if ((glyphFlags & HB_GLYPH_FLAG_UNSAFE_TO_BREAK) == 0) {
+            if ((glyphFlags & HarfBuzz.HB_GLYPH_FLAG_UNSAFE_TO_BREAK) == 0) {
                 currentGlyphRun.createCheckpoint(originalIndex, currentGlyphRun.glyphs.size);
             }
             currentGlyphRun.glyphs.add(font.getGlyph(glyphId));

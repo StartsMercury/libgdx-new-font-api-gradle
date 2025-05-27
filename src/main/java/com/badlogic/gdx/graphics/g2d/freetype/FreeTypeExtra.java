@@ -1,5 +1,8 @@
 package com.badlogic.gdx.graphics.g2d.freetype;
 
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.util.freetype.FT_Size_Request;
+
 /**
  *
  */
@@ -27,7 +30,20 @@ public final class FreeTypeExtra {
 	/** See:
 	 * https://www.freetype.org/freetype2/docs/reference/ft2-base_interface.html#FT_Request_Size
 	 * https://www.freetype.org/freetype2/docs/reference/ft2-base_interface.html#FT_Size_RequestRec */
-	public native static int FT_Request_Size(long face, int type, long width, long height, int horiResolution, int vertResolution);/*
+	public static int FT_Request_Size(long face, int type, long width, long height, int horiResolution, int vertResolution) {
+		MemoryStack stack = MemoryStack.stackGet(); int pointer = stack.getPointer();
+		try {
+			FT_Size_Request request = FT_Size_Request.calloc(stack)
+				.type(type)
+				.width(width)
+				.height(height)
+				.horiResolution(horiResolution)
+				.vertResolution(vertResolution);
+            return org.lwjgl.util.freetype.FreeType.nFT_Request_Size(face, request.address());
+		} finally {
+			stack.setPointer(pointer);
+		}
+	} /*
 		FT_Size_RequestRec request;
 		request.type = (FT_Size_Request_Type) type;
 		request.width = (FT_Long) width;

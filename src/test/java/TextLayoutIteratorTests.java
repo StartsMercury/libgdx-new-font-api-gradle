@@ -81,7 +81,10 @@ public class TextLayoutIteratorTests {
                 }
             }
 
-            layoutText.init(text.chars, text.length, initialFont, initialColor, null, true);
+            layoutText.init(initialFont, initialColor);
+            layoutText.setLocale(null);
+            layoutText.setLeftToRight(true);
+            layoutText.setText(text.chars, text.length);
             for (int i = 0; i < regionStarts.size; i++) {
                 layoutText.addRegion(regionStarts.get(i), regionFonts.get(i), regionColors.get(i));
             }

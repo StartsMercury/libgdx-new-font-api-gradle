@@ -1,34 +1,27 @@
 # LibGDX New Font API Experimentation
 
+## Differences to Original
+- Use of Gradle instead of wemi. Mainly preference and also to make more familiar
+  to libgdx build.
+- Use of lwjgl bindings whenever possible. I don't know have macos nor know how
+  to migrate from wemi workflow. Also removes harfbuzz sources.
+- Minor fixes when applicable.
+
 ![](demo/wikipedia-formatting.png)
 
-Directory layout:
-- `harfbuzz/`: installed harfbuzz (currently macOS binaries)
-- `harfbuzz-1.8.1/`: unmodified tarball release of harfbuzz (except for configuration)
-- `caladea/`: testing fonts
-- `build/`: [Wemi](https://github.com/Darkyenus/wemi) build script and data
-- `src/`: Sources
-	- [`com.badlogic.gdx.graphics.text`](src/main/java/com/badlogic/gdx/graphics/text): root of the new text API
-- `jni/`: jni-gen temporary files (generated at build time)
-- `libs/`: jni-gen outputs (generated at build time)
-
-# How to compile and run
-Configure and compile harfbuzz:
+Run [demo](src/demo/java/com/darkyen/libgdx/HarfBuzzTest.java):
 ```bash
-cd harfbuzz-1.8.1/
-
-## Make prefix absolute
-./configure --prefix=../harfbuzz --with-freetype=yes --with-glib=no --with-gobject=no --with-cairo=no --with-fontconfig=no --with-icu=no --with-ucdn=yes --with-graphite2=no --with-uniscribe=no --with-directwrite=no --with-coretext=no
-
-make install
+./gradlew runDemo
 ```
 
-Run [demo](src/main/java/com/darkyen/libgdx/HarfBuzzTest.java):
-```bash
-./wemi run
-```
+## Directory layout
+- `src/demo/`: Demo sources
+- `src/main/`: New Text API sources
+  - [`com.badlogic.gdx.graphics.text`](src/main/java/com/badlogic/gdx/graphics/text): root of the new text API
+- `src/test/`: JUnit Test sources
+- `test-fonts/`: Fonts used for testing
 
-# API Structure
+## API Structure
 Because each text backend has different requirements on font format and glyph layout,
 and because some text backends need some state and configuration, new entry-point interface has been introduced:
 [`FontSystem`](src/main/java/com/badlogic/gdx/graphics/text/FontSystem.java).
@@ -110,7 +103,6 @@ and ellipsis truncation.
 	- Tab stops
 	- Horizontal align
 	- Bidirectional text, according to BiDi algorithm, including character mirroring
-- HarfBuzz bindings
 - Text editing introspection
 	- "where should caret go when it is at this index?"
 	- "what character did I press when I clicked here?"

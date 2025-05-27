@@ -29,7 +29,7 @@ public class HBFont implements Font<HBFont> {
     private static final HBGlyph ERROR_GLYPH = new HBGlyph(-1);
 
     private final FreeType.Face face;
-    final HarfBuzz.Font hbFont;
+    final HarfBuzzUtil.Font hbFont;
     private final FreeType.Stroker stroker;
     private final FontParameters parameters;
     private final ImagePacker packer;
@@ -51,7 +51,7 @@ public class HBFont implements Font<HBFont> {
 
     protected HBFont(FreeType.Library library, FreeType.Face face, float size, float pixelsPerPoint, FontParameters parameters) {
         this.face = face;
-        this.hbFont = HarfBuzz.Font.createReferenced(face);
+        this.hbFont = HarfBuzzUtil.Font.createReferenced(face);
         this.glyphs = new HBGlyph[face.getNumGlyphs()];
         this.densityScale = 1f / pixelsPerPoint;
 
@@ -77,7 +77,7 @@ public class HBFont implements Font<HBFont> {
         if (isFaceScalable(face)) {
             FreeTypeExtra.FT_Request_Size(face,
                     FreeTypeExtra.FT_Size_Request_Type_FT_SIZE_REQUEST_TYPE_REAL_DIM,
-                    HarfBuzz.to26p6FromInt(pixelSize), HarfBuzz.to26p6FromInt(pixelSize), 0, 0);
+                    HarfBuzzUtil.to26p6FromInt(pixelSize), HarfBuzzUtil.to26p6FromInt(pixelSize), 0, 0);
         } else {
             // TODO(jp): Implement matching of the closest available size.
             // FreeType seems to do this only for perfect matches,

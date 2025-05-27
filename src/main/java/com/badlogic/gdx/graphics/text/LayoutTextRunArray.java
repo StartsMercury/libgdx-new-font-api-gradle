@@ -3,7 +3,6 @@ package com.badlogic.gdx.graphics.text;
 import com.badlogic.gdx.utils.*;
 
 import java.text.Bidi;
-import java.util.Iterator;
 
 /**
  * Allows to effectively iterate through homogenous regions of given text.
@@ -299,7 +298,7 @@ public final class LayoutTextRunArray<F extends Font<F>> extends Array<LayoutTex
      * Do not remove or modify iterated elements.
      */
     @Override
-    public Iterator<TextRun<F>> iterator() {
+    public ArrayIterator<TextRun<F>> iterator() {
         return super.iterator();
     }
 
